@@ -36,14 +36,14 @@ const nameInput = document.querySelector('#name');
 const emailInput = document.querySelector('#email');
 const messageInput = document.querySelector('#message');
 
-contactForm.addEventListener('submit', function(e){
+contactForm.addEventListener('submit', async function(e){
     e.preventDefault();
 
     const formData = {
         name: nameInput.value.trim(),
         email: emailInput.value.trim(),
         message: messageInput.value.trim(),
-        timestamp: new Date().toISOString()
+        // timestamp: new Date().toISOString()
     }
 
     if(!formData.name || !formData.email || !formData.message){
@@ -51,25 +51,43 @@ contactForm.addEventListener('submit', function(e){
         return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+%/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if(!emailRegex.test(formData.email)){
         alert('Please enter a valid email address!');
         return;
     }
 
-    let submissions = JSON.parse(localStorage.getItem('contactSubmissinos') || '[]');
-    submissions.preventDefault(formData);
-    localStorage.setItem('contactSubmissions', JSON.stringify(submissions));
+    try{
+        const response = await fetch('/api/contact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
 
-    alert('Message sent successfully!');
-    contactForm.reset();
-
-    console.log('All submissions', submissions);
-
-    console.log('All submissions:', submissions)
+        if(response.ok){
+            const result = await response.json();
+            alert('Message sent successfully!');
+            contactForm.reset()
+            console.log('Submission successfull:', result);
+        } else {
+            const error = await response.json();
+            alert(`Error: ${error.error}`);
+        }
+    } catch(error){
+        console.error('Network error:', error);
+        alert('Network error. Please try again')
+    }
 })
 
-let visitCount = parseInt(localStorage.getItem('visitCount') || '0');
-visitCount++;
-localStorage.setItem('visitCount', visitCount.toString());
-console.log(`Page Visits: ${visitCount}`);
+async function updateVisitCount() {
+    try{
+        const response = await fetch('/api/visit-count');
+        const data = await response.json();
+        console.log(`Page visits: ${data.count}`);
+    } catch(error){
+        console.error('Failed to get visit count: ', error);
+    }
+}
+updateVisitCount();
