@@ -60,6 +60,10 @@ h1{
     margin: 0 auto;
  }
 
+ #skills h2{
+   text-align: center;
+ }
+
  #skills ul {
     display: flex;
     justify-content: center;
