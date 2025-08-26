@@ -43,7 +43,7 @@ contactForm.addEventListener('submit', async function(e){
         name: nameInput.value.trim(),
         email: emailInput.value.trim(),
         message: messageInput.value.trim(),
-        // timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString()
     }
 
     if(!formData.name || !formData.email || !formData.message){
